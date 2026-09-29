@@ -1,7 +1,6 @@
-const OpenAI = require("openai");
+const { GoogleGenAI } = require("@google/genai");
 
 const {
-  MODEL,
   SYSTEM_PROMPT
 } = require("./config");
 
@@ -9,37 +8,47 @@ const {
   getMemory
 } = require("./memory");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY belum diisi.");
+}
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY
 });
 
 async function askAI(channelId, username, message) {
   const memory = getMemory(channelId);
 
-  const conversation = [
-    ...memory,
-    {
-      role: "user",
-      content: `[${username}] ${message}`
-    }
-  ];
+  const history = memory
+    .map((item) => {
+      if (item.role === "assistant") {
+        return `Lynn: ${item.content}`;
+      }
 
-  const response = await openai.responses.create({
-    model: MODEL,
-    instructions: SYSTEM_PROMPT,
+      return item.content;
+    })
+    .join("\n");
 
-    input: conversation.map((item) => ({
-      role: item.role,
-      content: item.content
-    })),
+  const prompt = `
+${SYSTEM_PROMPT}
 
-    max_output_tokens: 300
+RIWAYAT PERCAKAPAN:
+${history || "(belum ada percakapan sebelumnya)"}
+
+PESAN TERBARU:
+[${username}] ${message}
+
+Berikan satu jawaban yang natural dan singkat.
+`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt
   });
 
-  return response.output_text?.trim() || null;
+  return response.text?.trim() || null;
 }
 
 module.exports = {
   askAI
 };
-
