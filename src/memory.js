@@ -1,4 +1,6 @@
-const { MAX_MEMORY_MESSAGES } = require("./config");
+const {
+  MAX_MEMORY_MESSAGES
+} = require("./config");
 
 const memories = new Map();
 
@@ -10,7 +12,12 @@ function getMemory(channelId) {
   return memories.get(channelId);
 }
 
-function addMessage(channelId, role, content, username) {
+function addMessage(
+  channelId,
+  role,
+  content,
+  username
+) {
   const memory = getMemory(channelId);
 
   memory.push({
@@ -18,7 +25,9 @@ function addMessage(channelId, role, content, username) {
     content: `[${username}] ${content}`
   });
 
-  while (memory.length > MAX_MEMORY_MESSAGES) {
+  while (
+    memory.length > MAX_MEMORY_MESSAGES
+  ) {
     memory.shift();
   }
 }
@@ -32,4 +41,3 @@ module.exports = {
   addMessage,
   clearMemory
 };
-
