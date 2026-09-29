@@ -29,8 +29,8 @@ if (!process.env.DISCORD_TOKEN) {
   throw new Error("DISCORD_TOKEN belum diisi.");
 }
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY belum diisi.");
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY belum diisi.");
 }
 
 const client = new Client({
@@ -39,7 +39,6 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent
   ],
-
   partials: [
     Partials.Channel
   ]
@@ -55,7 +54,9 @@ function isAIEnabled(channelId) {
 function isOnCooldown(channelId) {
   const last = cooldowns.get(channelId);
 
-  if (!last) return false;
+  if (!last) {
+    return false;
+  }
 
   return Date.now() - last < COOLDOWN_MS;
 }
@@ -80,23 +81,24 @@ client.once("ready", async () => {
   const commands = [
     new SlashCommandBuilder()
       .setName("ai-on")
-      .setDescription("Aktifkan auto-chat bot di channel ini."),
+      .setDescription("Aktifkan auto-chat Lynn di channel ini."),
 
     new SlashCommandBuilder()
       .setName("ai-off")
-      .setDescription("Matikan auto-chat bot di channel ini."),
+      .setDescription("Matikan auto-chat Lynn di channel ini."),
 
     new SlashCommandBuilder()
       .setName("ai-status")
-      .setDescription("Lihat status bot di channel ini."),
+      .setDescription("Lihat status Lynn di channel ini."),
 
     new SlashCommandBuilder()
       .setName("ai-reset")
-      .setDescription("Reset memory bot di channel ini.")
+      .setDescription("Reset memory Lynn di channel ini.")
   ].map(command => command.toJSON());
 
-  const rest = new REST({ version: "10" })
-    .setToken(process.env.DISCORD_TOKEN);
+  const rest = new REST({
+    version: "10"
+  }).setToken(process.env.DISCORD_TOKEN);
 
   try {
     await rest.put(
@@ -108,12 +110,14 @@ client.once("ready", async () => {
 
     console.log("Slash commands terdaftar.");
   } catch (error) {
-    console.error("Gagal register commands:", error);
+    console.error("Gagal register slash commands:", error);
   }
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  if (!interaction.isChatInputCommand()) {
+    return;
+  }
 
   const channelId = interaction.channelId;
 
@@ -121,7 +125,7 @@ client.on("interactionCreate", async (interaction) => {
     const enabled = isAIEnabled(channelId);
 
     return interaction.reply(
-      `Bot di channel ini: **${enabled ? "ON" : "OFF"}**`
+      `Lynn di channel ini: **${enabled ? "ON" : "OFF"}**`
     );
   }
 
@@ -129,7 +133,7 @@ client.on("interactionCreate", async (interaction) => {
     channelSettings.set(channelId, true);
 
     return interaction.reply(
-      "Auto-chat bot diaktifkan."
+      "Lynn diaktifkan di channel ini."
     );
   }
 
@@ -137,7 +141,7 @@ client.on("interactionCreate", async (interaction) => {
     channelSettings.set(channelId, false);
 
     return interaction.reply(
-      "Auto-chat bot dimatikan."
+      "Lynn dimatikan di channel ini."
     );
   }
 
@@ -145,17 +149,21 @@ client.on("interactionCreate", async (interaction) => {
     clearMemory(channelId);
 
     return interaction.reply(
-      "Memory channel sudah di-reset."
+      "Memory Lynn di channel ini sudah di-reset."
     );
   }
 });
 
 client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
+  if (message.author.bot) {
+    return;
+  }
 
   const channelId = message.channel.id;
 
-  if (!isAIEnabled(channelId)) return;
+  if (!isAIEnabled(channelId)) {
+    return;
+  }
 
   const mentioned = message.mentions.has(client.user);
 
@@ -166,16 +174,20 @@ client.on("messageCreate", async (message) => {
     message.author.username
   );
 
-  // Kalau di-mention, selalu jawab.
+  // Kalau Lynn di-mention, selalu jawab.
   if (mentioned) {
     await generateReply(message);
     return;
   }
 
-  // Chat biasa = hanya kadang ikut.
-  if (isOnCooldown(channelId)) return;
+  // Chat biasa hanya sesekali dibalas.
+  if (isOnCooldown(channelId)) {
+    return;
+  }
 
-  if (Math.random() > AUTO_CHAT_CHANCE) return;
+  if (Math.random() > AUTO_CHAT_CHANCE) {
+    return;
+  }
 
   await generateReply(message);
 });
@@ -183,7 +195,9 @@ client.on("messageCreate", async (message) => {
 async function generateReply(message) {
   const channelId = message.channel.id;
 
-  if (isOnCooldown(channelId)) return;
+  if (isOnCooldown(channelId)) {
+    return;
+  }
 
   setCooldown(channelId);
 
@@ -236,4 +250,3 @@ async function generateReply(message) {
 }
 
 client.login(process.env.DISCORD_TOKEN);
-
