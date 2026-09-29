@@ -1,7 +1,7 @@
 {
   "name": "lynn",
   "version": "1.0.0",
-  "description": "Lynn - Discord AI Bot",
+  "description": "Lynn Discord AI Bot",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

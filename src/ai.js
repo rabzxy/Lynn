@@ -18,8 +18,13 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY
 });
 
-async function askAI(channelId, username, message) {
-  const memory = getMemory(channelId);
+async function askAI(
+  channelId,
+  username,
+  message
+) {
+  const memory =
+    getMemory(channelId);
 
   const history = memory
     .map((item) => {
