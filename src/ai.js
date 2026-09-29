@@ -1,12 +1,7 @@
 const { GoogleGenAI } = require("@google/genai");
 
-const {
-  SYSTEM_PROMPT
-} = require("./config");
-
-const {
-  getMemory
-} = require("./memory");
+const { SYSTEM_PROMPT } = require("./config");
+const { getMemory } = require("./memory");
 
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY belum diisi.");
