@@ -29,8 +29,8 @@ if (!process.env.DISCORD_TOKEN) {
   throw new Error("DISCORD_TOKEN belum diisi.");
 }
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("OPENAI_API_KEY belum diisi.");
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY belum diisi.");
 }
 
 const client = new Client({
